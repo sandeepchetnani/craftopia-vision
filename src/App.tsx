@@ -8,6 +8,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SelectService from "./pages/SelectService";
 import Pharmacy from "./pages/Pharmacy";
+import Hospitalization from "./pages/Hospitalization";
+import Consultation from "./pages/Consultation";
+import LabTest from "./pages/LabTest";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +24,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/select-service" element={<SelectService />} />
           <Route path="/pharmacy" element={<Pharmacy />} />
+          <Route path="/hospitalization" element={<Hospitalization />} />
+          <Route path="/consultation" element={<Consultation />} />
+          <Route path="/lab-test" element={<LabTest />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
