@@ -14,6 +14,7 @@ const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [amount, setAmount] = useState<string>("");
+  const [showKeypad, setShowKeypad] = useState<boolean>(false);
   const [qrData, setQrData] = useState<QRData>({
     merchantName: "Business Name Pvt. ltd.",
     merchantEmail: "businessname@okaxis",
@@ -135,9 +136,12 @@ const Payment = () => {
       <div className="flex-1 flex flex-col items-center justify-between">
         <div className="w-full text-center">
           <p className="text-gray-500 mb-2">ENTER AMOUNT</p>
-          <div className="text-5xl font-bold mb-2 relative w-full flex justify-center">
-            <span className="absolute left-1/2 -translate-x-[140%]">₹</span>
-            <span>{formatCurrency(amount)}</span>
+          <div 
+            className="text-5xl font-bold mb-2 relative w-full flex justify-center cursor-pointer"
+            onClick={() => setShowKeypad(true)}
+          >
+            <span className="absolute left-0 pl-[30%] text-5xl">₹</span>
+            <span className="pl-10">{formatCurrency(amount || "0")}</span>
           </div>
           <div className="w-48 h-px bg-gray-300 mx-auto"></div>
         </div>
@@ -163,62 +167,67 @@ const Payment = () => {
         </div>
       </div>
 
-      {/* Number Pad */}
-      <div className="grid grid-cols-4 gap-1 bg-gray-100 mt-auto">
-        <button onClick={() => handleNumberPress("1")} className="py-4 bg-white text-2xl font-medium">
-          1
-        </button>
-        <button onClick={() => handleNumberPress("2")} className="py-4 bg-white text-2xl font-medium">
-          2 <span className="text-xs text-gray-400">ABC</span>
-        </button>
-        <button onClick={() => handleNumberPress("3")} className="py-4 bg-white text-2xl font-medium">
-          3 <span className="text-xs text-gray-400">DEF</span>
-        </button>
-        <button onClick={() => handleSpecialKey("clear")} className="py-4 bg-gray-200 text-2xl font-medium text-gray-500">
-          −
-        </button>
+      {/* Number Pad - Only show when amount field is clicked */}
+      {showKeypad && (
+        <div className="grid grid-cols-4 gap-1 bg-gray-100 mt-auto">
+          <button onClick={() => handleNumberPress("1")} className="py-4 bg-white text-2xl font-medium">
+            1
+          </button>
+          <button onClick={() => handleNumberPress("2")} className="py-4 bg-white text-2xl font-medium">
+            2 <span className="text-xs text-gray-400">ABC</span>
+          </button>
+          <button onClick={() => handleNumberPress("3")} className="py-4 bg-white text-2xl font-medium">
+            3 <span className="text-xs text-gray-400">DEF</span>
+          </button>
+          <button onClick={() => handleSpecialKey("clear")} className="py-4 bg-gray-200 text-2xl font-medium text-gray-500">
+            −
+          </button>
 
-        <button onClick={() => handleNumberPress("4")} className="py-4 bg-white text-2xl font-medium">
-          4 <span className="text-xs text-gray-400">GHI</span>
-        </button>
-        <button onClick={() => handleNumberPress("5")} className="py-4 bg-white text-2xl font-medium">
-          5 <span className="text-xs text-gray-400">JKL</span>
-        </button>
-        <button onClick={() => handleNumberPress("6")} className="py-4 bg-white text-2xl font-medium">
-          6 <span className="text-xs text-gray-400">MNO</span>
-        </button>
-        <button onClick={() => handleSpecialKey("clear")} className="py-4 bg-gray-200 text-2xl font-medium text-gray-500">
-          ⌫
-        </button>
+          <button onClick={() => handleNumberPress("4")} className="py-4 bg-white text-2xl font-medium">
+            4 <span className="text-xs text-gray-400">GHI</span>
+          </button>
+          <button onClick={() => handleNumberPress("5")} className="py-4 bg-white text-2xl font-medium">
+            5 <span className="text-xs text-gray-400">JKL</span>
+          </button>
+          <button onClick={() => handleNumberPress("6")} className="py-4 bg-white text-2xl font-medium">
+            6 <span className="text-xs text-gray-400">MNO</span>
+          </button>
+          <button onClick={() => handleSpecialKey("clear")} className="py-4 bg-gray-200 text-2xl font-medium text-gray-500">
+            ⌫
+          </button>
 
-        <button onClick={() => handleNumberPress("7")} className="py-4 bg-white text-2xl font-medium">
-          7 <span className="text-xs text-gray-400">PQRS</span>
-        </button>
-        <button onClick={() => handleNumberPress("8")} className="py-4 bg-white text-2xl font-medium">
-          8 <span className="text-xs text-gray-400">TUV</span>
-        </button>
-        <button onClick={() => handleNumberPress("9")} className="py-4 bg-white text-2xl font-medium">
-          9 <span className="text-xs text-gray-400">WXYZ</span>
-        </button>
-        <button onClick={() => handleSpecialKey("backspace")} className="py-4 bg-gray-200 text-2xl font-medium text-gray-500 flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17 15.59L15.59 17L12 13.41L8.41 17L7 15.59L10.59 12L7 8.41L8.41 7L12 10.59L15.59 7L17 8.41L13.41 12L17 15.59Z" fill="currentColor"/>
-          </svg>
-        </button>
+          <button onClick={() => handleNumberPress("7")} className="py-4 bg-white text-2xl font-medium">
+            7 <span className="text-xs text-gray-400">PQRS</span>
+          </button>
+          <button onClick={() => handleNumberPress("8")} className="py-4 bg-white text-2xl font-medium">
+            8 <span className="text-xs text-gray-400">TUV</span>
+          </button>
+          <button onClick={() => handleNumberPress("9")} className="py-4 bg-white text-2xl font-medium">
+            9 <span className="text-xs text-gray-400">WXYZ</span>
+          </button>
+          <button onClick={() => handleSpecialKey("backspace")} className="py-4 bg-gray-200 text-2xl font-medium text-gray-500 flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17 15.59L15.59 17L12 13.41L8.41 17L7 15.59L10.59 12L7 8.41L8.41 7L12 10.59L15.59 7L17 8.41L13.41 12L17 15.59Z" fill="currentColor"/>
+            </svg>
+          </button>
 
-        <button onClick={() => handleNumberPress("*")} className="py-4 bg-white text-2xl font-medium">
-          * #
-        </button>
-        <button onClick={() => handleNumberPress("0")} className="py-4 bg-white text-2xl font-medium">
-          0 <span className="text-xs text-gray-400">+</span>
-        </button>
-        <button onClick={() => handleSpecialKey("decimal")} className="py-4 bg-white text-2xl font-medium">
-          .
-        </button>
-        <button className="py-4 bg-gray-200 text-2xl font-medium text-gray-500">
-          →
-        </button>
-      </div>
+          <button onClick={() => handleNumberPress("*")} className="py-4 bg-white text-2xl font-medium">
+            * #
+          </button>
+          <button onClick={() => handleNumberPress("0")} className="py-4 bg-white text-2xl font-medium">
+            0 <span className="text-xs text-gray-400">+</span>
+          </button>
+          <button onClick={() => handleSpecialKey("decimal")} className="py-4 bg-white text-2xl font-medium">
+            .
+          </button>
+          <button 
+            className="py-4 bg-gray-200 text-2xl font-medium text-gray-500"
+            onClick={() => setShowKeypad(false)}
+          >
+            →
+          </button>
+        </div>
+      )}
     </div>
   );
 };
