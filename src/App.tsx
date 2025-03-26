@@ -11,6 +11,7 @@ import Pharmacy from "./pages/Pharmacy";
 import Hospitalization from "./pages/Hospitalization";
 import Consultation from "./pages/Consultation";
 import LabTest from "./pages/LabTest";
+import Scanner from "./pages/Scanner";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/hospitalization" element={<Hospitalization />} />
           <Route path="/consultation" element={<Consultation />} />
           <Route path="/lab-test" element={<LabTest />} />
+          <Route path="/scanner" element={<Scanner />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
