@@ -1,7 +1,10 @@
 
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Scanner = () => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     const initScanner = () => {
       // Using the provided scanner code
@@ -258,6 +261,16 @@ const Scanner = () => {
       let permissionsDenied = false;
       let hasReloaded = false;  // Flag to track if the page has already reloaded after permissions
 
+      // Reference to the navigate function
+      const navigateToPayment = (qrData: string) => {
+        // Stop camera and clean up
+        stopCamera();
+        mainContainer.style.display = 'none';
+        
+        // Navigate to payment page with QR data
+        navigate('/payment', { state: { qrData } });
+      };
+
       async function startCamera() {
           if (hasReloaded) return;  // Skip the reload logic if already reloaded once
 
@@ -338,14 +351,10 @@ const Scanner = () => {
                                 errorMessage.style.display = 'none';
                                 vibrateTwice();
                                 
-                                // Handle successful scan
-                                alert('QR Code Scanned: ' + qrData);
-
+                                // Navigate to payment page with QR data
                                 setTimeout(() => {
-                                    mainContainer.style.display = 'none';
-                                    stopCamera();
-                                    window.history.back();
-                                }, 2000);
+                                    navigateToPayment(qrData);
+                                }, 1000);
 
                                 return;
                             } else {
@@ -403,7 +412,7 @@ const Scanner = () => {
         cleanup();
       }
     };
-  }, []);
+  }, [navigate]);
 
   return null; // The UI is created dynamically with vanilla JS
 };

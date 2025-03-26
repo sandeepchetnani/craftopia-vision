@@ -12,6 +12,7 @@ import Hospitalization from "./pages/Hospitalization";
 import Consultation from "./pages/Consultation";
 import LabTest from "./pages/LabTest";
 import Scanner from "./pages/Scanner";
+import Payment from "./pages/Payment";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/consultation" element={<Consultation />} />
           <Route path="/lab-test" element={<LabTest />} />
           <Route path="/scanner" element={<Scanner />} />
+          <Route path="/payment" element={<Payment />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
