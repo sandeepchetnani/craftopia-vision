@@ -208,8 +208,8 @@ const Scanner = () => {
 
       const camera = document.createElement('video');
       camera.id = 'camera';
-      camera.setAttribute('playsinline', true);
-      camera.setAttribute('autoplay', true);
+      camera.setAttribute('playsinline', 'true'); // Fixed: boolean to string
+      camera.setAttribute('autoplay', 'true');    // Fixed: boolean to string
       camera.style.display = 'none';  // Initially hide the video
       camera.controls = false;
       container.appendChild(camera);
@@ -223,7 +223,7 @@ const Scanner = () => {
 
       ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach((corner) => {
           const cornerElement = document.createElement('div');
-          cornerElement.className = `${corner}`;
+          cornerElement.className = corner;
           scannerFrame.appendChild(cornerElement);
       });
       container.appendChild(scannerFrame);
@@ -238,9 +238,11 @@ const Scanner = () => {
       scannerFrame.appendChild(errorMessage);
 
       const closeButton = errorMessage.querySelector('.close-btn');
-      closeButton.addEventListener('click', () => {
+      if (closeButton) {
+        closeButton.addEventListener('click', () => {
           errorMessage.style.display = 'none';
-      });
+        });
+      }
 
       const jsQRScript = document.createElement('script');
       jsQRScript.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
@@ -279,14 +281,16 @@ const Scanner = () => {
               vibrateTwice();
           } catch (err) {
               console.error('Error accessing camera:', err);
-              errorMessage.querySelector('.error-text').textContent = 'Please allow camera access by navigating to Medibuddy settings app, after allowing close the Medibuddy tab and reopen the link.';
+              if (errorMessage.querySelector('.error-text')) {
+                (errorMessage.querySelector('.error-text') as HTMLElement).textContent = 'Please allow camera access by navigating to Medibuddy settings app, after allowing close the Medibuddy tab and reopen the link.';
+              }
               errorMessage.style.display = 'block';
               permissionsDenied = true;  // Set denied flag when permissions are denied
               permissionsGranted = false; // Reset granted flag
           }
       }
 
-      // Scan function (your existing QR scanning logic)
+      // Scan function (QR scanning logic)
       function scan() {
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
@@ -295,51 +299,64 @@ const Scanner = () => {
 
           const checkQRCode = () => {
               if (camera.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-                  context.drawImage(camera, 0, 0, canvas.width, canvas.height);
-                  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                  
-                  // Check if jsQR is available before using it
-                  if (window.jsQR) {
-                      const code = window.jsQR(imageData.data, canvas.width, canvas.height);
+                  if (context) {
+                    context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // Check if jsQR is available before using it
+                    if (window.jsQR) {
+                        const code = window.jsQR(imageData.data, canvas.width, canvas.height);
 
-                      if (code) {
-                          const qrData = code.data.toLowerCase();
+                        if (code) {
+                            const qrData = code.data.toLowerCase();
 
-                          if (qrData.includes('@paytm')) {
-                              errorMessage.style.display = 'flex';
-                              errorMessage.querySelector('.error-text').textContent = 'QR code not supported for payment processing';
-                              errorMessage.style.display = 'block';
-                              vibrateTwice();
-                          } else if (
-                              qrData.includes('upi://pay') ||
-                              qrData.includes('hdfc') ||
-                              qrData.includes('icici') ||
-                              qrData.includes('axisbank') ||
-                              qrData.includes('idbi')
-                          ) {
-                              document.querySelector('.top-left').style.borderColor = '#0F7A48 transparent transparent #0F7A48';
-                              document.querySelector('.top-right').style.borderColor = '#0F7A48  #0F7A48 transparent transparent';
-                              document.querySelector('.bottom-left').style.borderColor = 'transparent transparent #0F7A48 #0F7A48';
-                              document.querySelector('.bottom-right').style.borderColor = 'transparent #0F7A48 #0F7A48 transparent';
-                              errorMessage.style.display = 'none';
-                              vibrateTwice();
-                              
-                              // Handle successful scan
-                              alert('QR Code Scanned: ' + qrData);
+                            if (qrData.includes('@paytm')) {
+                                errorMessage.style.display = 'flex';
+                                if (errorMessage.querySelector('.error-text')) {
+                                  (errorMessage.querySelector('.error-text') as HTMLElement).textContent = 'QR code not supported for payment processing';
+                                }
+                                errorMessage.style.display = 'block';
+                                vibrateTwice();
+                            } else if (
+                                qrData.includes('upi://pay') ||
+                                qrData.includes('hdfc') ||
+                                qrData.includes('icici') ||
+                                qrData.includes('axisbank') ||
+                                qrData.includes('idbi')
+                            ) {
+                                // Fix the style property access with type assertions
+                                const topLeft = document.querySelector('.top-left');
+                                const topRight = document.querySelector('.top-right');
+                                const bottomLeft = document.querySelector('.bottom-left');
+                                const bottomRight = document.querySelector('.bottom-right');
+                                
+                                if (topLeft) (topLeft as HTMLElement).style.borderColor = '#0F7A48 transparent transparent #0F7A48';
+                                if (topRight) (topRight as HTMLElement).style.borderColor = '#0F7A48 #0F7A48 transparent transparent';
+                                if (bottomLeft) (bottomLeft as HTMLElement).style.borderColor = 'transparent transparent #0F7A48 #0F7A48';
+                                if (bottomRight) (bottomRight as HTMLElement).style.borderColor = 'transparent #0F7A48 #0F7A48 transparent';
+                                
+                                errorMessage.style.display = 'none';
+                                vibrateTwice();
+                                
+                                // Handle successful scan
+                                alert('QR Code Scanned: ' + qrData);
 
-                              setTimeout(() => {
-                                  mainContainer.style.display = 'none';
-                                  stopCamera();
-                                  window.history.back();
-                              }, 2000);
+                                setTimeout(() => {
+                                    mainContainer.style.display = 'none';
+                                    stopCamera();
+                                    window.history.back();
+                                }, 2000);
 
-                              return;
-                          } else {
-                              vibrateTwice();
-                              errorMessage.querySelector('.error-text').textContent = 'Invalid QR Code, Please scan a valid QR code.';
-                              errorMessage.style.display = 'block';
-                          }
-                      }
+                                return;
+                            } else {
+                                vibrateTwice();
+                                if (errorMessage.querySelector('.error-text')) {
+                                  (errorMessage.querySelector('.error-text') as HTMLElement).textContent = 'Invalid QR Code, Please scan a valid QR code.';
+                                }
+                                errorMessage.style.display = 'block';
+                            }
+                        }
+                    }
                   }
               }
 
@@ -351,7 +368,7 @@ const Scanner = () => {
 
       function stopCamera() {
           const stream = camera.srcObject;
-          if (stream) {
+          if (stream instanceof MediaStream) {
               const tracks = stream.getTracks();
               tracks.forEach((track) => track.stop());
           }
