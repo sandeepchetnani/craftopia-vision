@@ -1,7 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface PaymentSummaryProps {}
 
@@ -10,6 +12,16 @@ interface SummaryData {
   merchantEmail?: string;
   paymentType?: string;
   amount?: string;
+}
+
+interface Offer {
+  id: string;
+  provider: string;
+  code: string;
+  description: string;
+  discount: number;
+  type: "best" | "other" | "bank" | "not-applicable";
+  condition?: string;
 }
 
 const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
@@ -21,6 +33,10 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
     amount: "2400"
   };
 
+  const [showOffers, setShowOffers] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+
   const formattedAmount = summaryData.amount
     ? summaryData.amount.replace(/,/g, "")
     : "0";
@@ -30,6 +46,149 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
     const number = parseFloat(amount);
     return new Intl.NumberFormat('en-IN').format(number);
   };
+
+  const offers: Offer[] = [
+    {
+      id: "1",
+      provider: "cult.fit",
+      code: "FLASH20",
+      description: "Get Cult.fit voucher worth ₹500 on this payment",
+      discount: 500,
+      type: "best"
+    },
+    {
+      id: "2",
+      provider: "cult.fit",
+      code: "FLASH10",
+      description: "Get Cult.fit voucher worth ₹500 on this payment",
+      discount: 300,
+      type: "other"
+    },
+    {
+      id: "3",
+      provider: "cult.fit",
+      code: "FLASH5",
+      description: "Get Cult.fit voucher worth ₹500 on this payment",
+      discount: 200,
+      type: "other"
+    },
+    {
+      id: "4",
+      provider: "LAZYPAY",
+      code: "FLASH10",
+      description: "Get cash-back worth ₹500 on this payment",
+      discount: 500,
+      type: "bank"
+    },
+    {
+      id: "5",
+      provider: "cult.fit",
+      code: "FLASH10",
+      description: "Get Cult.fit voucher worth ₹500 on this payment",
+      discount: 500,
+      type: "not-applicable",
+      condition: "Add ₹500 more to avail this offer"
+    }
+  ];
+
+  // Group offers by type
+  const bestOffers = offers.filter(offer => offer.type === "best");
+  const otherOffers = offers.filter(offer => offer.type === "other");
+  const bankOffers = offers.filter(offer => offer.type === "bank");
+  const notApplicableOffers = offers.filter(offer => offer.type === "not-applicable");
+
+  const handleApplyCoupon = () => {
+    setShowOffers(true);
+  };
+
+  const handleBackToSummary = () => {
+    setShowOffers(false);
+  };
+
+  const handleApplyOffer = (offer: Offer) => {
+    if (offer.type !== "not-applicable") {
+      setSelectedOffer(offer);
+      setShowOffers(false);
+    }
+  };
+
+  const getDiscountedAmount = () => {
+    if (!selectedOffer) return formattedAmount;
+    const amount = parseFloat(formattedAmount);
+    return (amount - selectedOffer.discount).toString();
+  };
+
+  if (showOffers) {
+    return (
+      <div className="max-w-md mx-auto bg-[#f8fafc] min-h-screen flex flex-col">
+        <div className="sticky top-0 z-10 bg-white shadow-sm">
+          <div className="px-4 py-4 flex items-center">
+            <button onClick={handleBackToSummary} className="mr-4">
+              <ArrowLeft size={24} className="text-gray-700" />
+            </button>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-800">All Offers</h1>
+              <p className="text-sm text-gray-600">Amount: ₹{formatIndianCurrency(formattedAmount)}</p>
+            </div>
+          </div>
+          <div className="h-px bg-gray-200"></div>
+        </div>
+
+        <div className="p-4">
+          <div className="bg-white rounded-lg mb-6 flex overflow-hidden">
+            <Input 
+              className="flex-1 border-none"
+              placeholder="Enter Code" 
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+            />
+            <Button 
+              className="rounded-none bg-white hover:bg-white text-blue-500 font-medium"
+              onClick={() => {}}
+            >
+              Apply
+            </Button>
+          </div>
+
+          {bestOffers.length > 0 && (
+            <>
+              <h2 className="text-lg font-bold text-gray-800 mb-3">Best For You!</h2>
+              {bestOffers.map(offer => (
+                <OfferCard key={offer.id} offer={offer} onApply={handleApplyOffer} />
+              ))}
+            </>
+          )}
+
+          {otherOffers.length > 0 && (
+            <>
+              <h2 className="text-lg font-bold text-gray-800 mb-3 mt-6">Other Offers</h2>
+              {otherOffers.map(offer => (
+                <OfferCard key={offer.id} offer={offer} onApply={handleApplyOffer} />
+              ))}
+            </>
+          )}
+
+          {bankOffers.length > 0 && (
+            <>
+              <h2 className="text-lg font-bold text-gray-800 mb-3 mt-6">Bank Offers</h2>
+              {bankOffers.map(offer => (
+                <OfferCard key={offer.id} offer={offer} onApply={handleApplyOffer} />
+              ))}
+            </>
+          )}
+
+          {notApplicableOffers.length > 0 && (
+            <>
+              <h2 className="text-lg font-bold text-gray-800 mb-3 mt-6">Not Applicable</h2>
+              {notApplicableOffers.map(offer => (
+                <OfferCard key={offer.id} offer={offer} onApply={handleApplyOffer} isDisabled />
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto bg-[#f8fafc] min-h-screen flex flex-col">
@@ -61,7 +220,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
 
       <div className="px-4 mb-4">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Offers Available</h2>
-        <div className="bg-white rounded-xl p-4 mb-6 shadow-sm">
+        <div className="bg-white rounded-xl p-4 mb-6 shadow-sm" onClick={handleApplyCoupon}>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center mr-4">
@@ -86,10 +245,12 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
             <span className="text-gray-700">Total MRP</span>
             <span className="font-medium">₹{formatIndianCurrency(formattedAmount)}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-gray-700">Reward Voucher [FLASH 20]</span>
-            <span className="font-medium text-green-600">₹500</span>
-          </div>
+          {selectedOffer && (
+            <div className="flex justify-between items-center">
+              <span className="text-gray-700">Reward Voucher [{selectedOffer.code}]</span>
+              <span className="font-medium text-green-600">-₹{selectedOffer.discount}</span>
+            </div>
+          )}
           <div className="h-px bg-gray-200 my-2"></div>
           <div className="flex justify-between items-center">
             <span className="text-gray-700">Total Amount</span>
@@ -98,7 +259,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
           <div className="h-px bg-gray-200 my-2"></div>
           <div className="flex justify-between items-center">
             <span className="text-gray-700 font-semibold">Payable Amount</span>
-            <span className="font-semibold">₹{formatIndianCurrency(formattedAmount)}</span>
+            <span className="font-semibold">₹{selectedOffer ? formatIndianCurrency(getDiscountedAmount()) : formatIndianCurrency(formattedAmount)}</span>
           </div>
         </div>
       </div>
@@ -106,10 +267,59 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
       <div className="mt-auto px-4 py-4 bg-white border-t border-gray-200">
         <div className="flex justify-between items-center mb-4">
           <span className="text-gray-800 font-bold">Payable Amount</span>
-          <span className="text-gray-800 font-bold text-xl">₹{formatIndianCurrency(formattedAmount)}</span>
+          <span className="text-gray-800 font-bold text-xl">₹{selectedOffer ? formatIndianCurrency(getDiscountedAmount()) : formatIndianCurrency(formattedAmount)}</span>
         </div>
         <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium">
           Proceed to Pay
+        </button>
+      </div>
+    </div>
+  );
+};
+
+interface OfferCardProps {
+  offer: Offer;
+  onApply: (offer: Offer) => void;
+  isDisabled?: boolean;
+}
+
+const OfferCard: React.FC<OfferCardProps> = ({ offer, onApply, isDisabled = false }) => {
+  const handleApply = () => {
+    if (!isDisabled) {
+      onApply(offer);
+    }
+  };
+
+  return (
+    <div className={`bg-white rounded-lg p-4 mb-4 ${isDisabled ? 'bg-gray-100' : ''}`}>
+      <div className="flex items-center mb-2">
+        {offer.provider === "cult.fit" ? (
+          <div className="font-bold flex items-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+              <path d="M12 4L14.5 9.5L21 10.5L16.5 14.5L18 21L12 18L6 21L7.5 14.5L3 10.5L9.5 9.5L12 4Z" fill="currentColor"/>
+            </svg>
+            cult.fit
+          </div>
+        ) : (
+          <div className="font-bold flex items-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+              <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
+              <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            {offer.provider}
+          </div>
+        )}
+      </div>
+      <p className="text-gray-700 mb-1">{offer.description}</p>
+      {offer.condition && <p className="text-gray-400 text-sm">{offer.condition}</p>}
+      <div className="flex justify-between items-center mt-2">
+        <span className="bg-gray-100 px-3 py-1 rounded text-gray-800 font-medium">{offer.code}</span>
+        <button 
+          onClick={handleApply}
+          className={`text-blue-500 font-medium ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={isDisabled}
+        >
+          Apply
         </button>
       </div>
     </div>
