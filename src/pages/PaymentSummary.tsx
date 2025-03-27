@@ -1,11 +1,11 @@
-
 import React, { useState } from "react";
 import { ArrowLeft, ChevronRight, X } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { openRazorpayCheckout } from "@/utils/razorpay";
 
 interface PaymentSummaryProps {}
 
@@ -28,6 +28,7 @@ interface Offer {
 
 const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const summaryData: SummaryData = location.state?.summaryData || {
     merchantName: "Business Name Pvt. ltd.",
@@ -45,7 +46,6 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
     ? summaryData.amount.replace(/,/g, "")
     : "0";
   
-  // Format as Indian currency with commas
   const formatIndianCurrency = (amount: string) => {
     const number = parseFloat(amount);
     return new Intl.NumberFormat('en-IN').format(number);
@@ -95,7 +95,6 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
     }
   ];
 
-  // Group offers by type
   const bestOffers = offers.filter(offer => offer.type === "best");
   const otherOffers = offers.filter(offer => offer.type === "other");
   const bankOffers = offers.filter(offer => offer.type === "bank");
@@ -115,7 +114,6 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
       setShowOffers(false);
       setShowSuccessDialog(true);
       
-      // Close dialog after 2 seconds
       setTimeout(() => {
         setShowSuccessDialog(false);
         toast({
@@ -134,6 +132,46 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
     if (!selectedOffer) return formattedAmount;
     const amount = parseFloat(formattedAmount);
     return (amount - selectedOffer.discount).toString();
+  };
+
+  const handleProceedToPay = () => {
+    const amountToPay = selectedOffer ? 
+      parseFloat(getDiscountedAmount()) : 
+      parseFloat(formattedAmount);
+    
+    openRazorpayCheckout(
+      {
+        amount: amountToPay,
+        currency: "INR",
+        name: summaryData.merchantName || "Healthcare Payment",
+        description: `Payment for ${summaryData.paymentType || "Healthcare Services"}`,
+        prefill: {
+          name: "Patient Name",
+          email: "patient@example.com",
+          contact: "9999999999",
+        },
+        theme: {
+          color: "#3B82F6",
+        }
+      },
+      (response: any) => {
+        toast({
+          title: "Payment Successful",
+          description: `Payment ID: ${response.razorpay_payment_id}`,
+        });
+        
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      },
+      (error: any) => {
+        toast({
+          title: "Payment Failed",
+          description: error.message || "Something went wrong with your payment",
+          variant: "destructive",
+        });
+      }
+    );
   };
 
   if (showOffers) {
@@ -327,12 +365,14 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
           <span className="text-gray-800 font-bold">Payable Amount</span>
           <span className="text-gray-800 font-bold text-xl">₹{selectedOffer ? formatIndianCurrency(getDiscountedAmount()) : formatIndianCurrency(formattedAmount)}</span>
         </div>
-        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium">
+        <button 
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium"
+          onClick={handleProceedToPay}
+        >
           Proceed to Pay
         </button>
       </div>
 
-      {/* Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent className="sm:max-w-md p-0 rounded-xl">
           <div className="relative">
