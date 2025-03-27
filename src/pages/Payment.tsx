@@ -71,9 +71,17 @@ const Payment = () => {
   };
 
   const handleConfirm = () => {
-    // In a real app, this would handle the payment processing
-    alert(`Payment of ₹${amount} confirmed for ${qrData.merchantName}`);
-    navigate("/");
+    // Navigate to the payment summary page with the data
+    navigate("/payment-summary", { 
+      state: { 
+        summaryData: {
+          merchantName: qrData.merchantName,
+          merchantEmail: qrData.merchantEmail,
+          paymentType: qrData.paymentType,
+          amount: amount
+        } 
+      }
+    });
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
