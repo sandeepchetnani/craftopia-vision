@@ -5,6 +5,14 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface PaymentSuccessProps {}
 
@@ -13,6 +21,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [showDialog, setShowDialog] = useState(false);
   
   const paymentData = location.state?.paymentData || {
     merchantName: "Business Name Pvt Ltd.",
@@ -26,7 +35,11 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = () => {
   const formattedDate = format(currentDate, "hh:mm a 'on' dd-MMM-yyyy");
 
   const handleClose = () => {
-    navigate("/");
+    if (uploadedFiles.length === 0) {
+      setShowDialog(true);
+    } else {
+      navigate("/");
+    }
   };
 
   const handleUploadInvoice = () => {
@@ -81,6 +94,16 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = () => {
 
   const removeFile = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleConfirmSkip = () => {
+    setShowDialog(false);
+    navigate("/");
+  };
+
+  const handleUploadNow = () => {
+    setShowDialog(false);
+    handleUploadPrescription();
   };
 
   return (
@@ -168,6 +191,34 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl text-red-500 font-bold">Note:</DialogTitle>
+          </DialogHeader>
+          <div className="border-t border-b border-gray-200 py-4 my-2">
+            <DialogDescription className="text-center text-black text-base">
+              You will not be able to use MB-Pay again until 1 of the two documents is uploaded.
+            </DialogDescription>
+          </div>
+          <DialogFooter className="flex flex-row gap-2 sm:gap-0">
+            <Button 
+              variant="outline" 
+              onClick={handleConfirmSkip} 
+              className="flex-1 border-blue-600 text-blue-600"
+            >
+              Skip for Now
+            </Button>
+            <Button 
+              onClick={handleUploadNow} 
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+            >
+              Upload Now
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
