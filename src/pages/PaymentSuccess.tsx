@@ -78,14 +78,6 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = () => {
           <h2 className="text-center text-xl font-bold mb-3">EARN BUDDY COINS!</h2>
           <p className="text-center mb-4">Upload Invoice & Prescription</p>
           
-          <div className="bg-blue-50 p-6 rounded-lg mb-6">
-            <img
-              src="/lovable-uploads/362c566c-f9ec-47d0-980a-4e43b1d7470f.png"
-              alt="Prescription"
-              className="w-full max-w-xs mx-auto"
-            />
-          </div>
-          
           <Button
             className="w-full bg-blue-600 hover:bg-blue-700 py-6 mb-4"
             onClick={handleUploadInvoice}
