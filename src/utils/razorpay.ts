@@ -17,6 +17,12 @@ interface PaymentOptions {
   };
 }
 
+export interface PaymentResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id?: string;
+  razorpay_signature?: string;
+}
+
 export const initializeRazorpay = (): Promise<boolean> => {
   return new Promise((resolve) => {
     // Check if Razorpay is already loaded
@@ -34,7 +40,7 @@ export const initializeRazorpay = (): Promise<boolean> => {
   });
 };
 
-export const openRazorpayCheckout = async (options: PaymentOptions, onSuccess: Function, onFailure: Function) => {
+export const openRazorpayCheckout = async (options: PaymentOptions, onSuccess: (response: PaymentResponse) => void, onFailure: (error: any) => void) => {
   const res = await initializeRazorpay();
 
   if (!res) {
@@ -54,12 +60,17 @@ export const openRazorpayCheckout = async (options: PaymentOptions, onSuccess: F
     description: options.description,
     image: options.image,
     order_id: options.orderId,
-    handler: function (response: any) {
+    handler: function (response: PaymentResponse) {
       onSuccess(response);
     },
     prefill: options.prefill,
     notes: options.notes,
-    theme: options.theme
+    theme: options.theme,
+    modal: {
+      ondismiss: function() {
+        onFailure({ message: "Payment cancelled by user" });
+      }
+    }
   };
 
   try {

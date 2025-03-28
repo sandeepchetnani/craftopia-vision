@@ -15,6 +15,8 @@ import LabTest from "./pages/LabTest";
 import Scanner from "./pages/Scanner";
 import Payment from "./pages/Payment";
 import PaymentSummary from "./pages/PaymentSummary";
+import PaymentProcessing from "./pages/PaymentProcessing";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 // Create a client with default options
 const queryClient = new QueryClient({
@@ -43,6 +45,8 @@ const App = () => (
             <Route path="/scanner" element={<Scanner />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/payment-summary" element={<PaymentSummary />} />
+            <Route path="/payment-processing" element={<PaymentProcessing />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { openRazorpayCheckout } from "@/utils/razorpay";
+import { openRazorpayCheckout, PaymentResponse } from "@/utils/razorpay";
 
 interface PaymentSummaryProps {}
 
@@ -154,15 +154,18 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = () => {
           color: "#3B82F6",
         }
       },
-      (response: any) => {
-        toast({
-          title: "Payment Successful",
-          description: `Payment ID: ${response.razorpay_payment_id}`,
-        });
+      (response: PaymentResponse) => {
+        const paymentData = {
+          merchantName: summaryData.merchantName,
+          merchantEmail: summaryData.merchantEmail,
+          paymentAmount: selectedOffer ? 
+            formatIndianCurrency(getDiscountedAmount()) : 
+            formatIndianCurrency(formattedAmount),
+          transactionId: response.razorpay_payment_id,
+          paymentMode: "UPI"
+        };
         
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+        navigate("/payment-processing", { state: { paymentData } });
       },
       (error: any) => {
         toast({
