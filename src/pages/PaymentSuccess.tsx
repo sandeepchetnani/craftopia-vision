@@ -1,15 +1,19 @@
 
-import React from "react";
-import { X, Check } from "lucide-react";
+import React, { useState } from "react";
+import { X, Check, Upload, FileImage } from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 interface PaymentSuccessProps {}
 
 const PaymentSuccess: React.FC<PaymentSuccessProps> = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  
   const paymentData = location.state?.paymentData || {
     merchantName: "Business Name Pvt Ltd.",
     merchantEmail: "businessname@okaxis",
@@ -26,13 +30,57 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = () => {
   };
 
   const handleUploadInvoice = () => {
-    // This would handle the invoice upload functionality
-    console.log("Upload invoice clicked");
+    // Create a file input element
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.multiple = true;
+    fileInput.accept = "image/*,.pdf";
+    
+    // Handle file selection
+    fileInput.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files) {
+        const newFiles = Array.from(target.files);
+        setUploadedFiles(prev => [...prev, ...newFiles]);
+        
+        toast({
+          title: "Files Uploaded Successfully",
+          description: `${newFiles.length} file(s) uploaded`,
+        });
+      }
+    };
+    
+    // Trigger click on the file input
+    fileInput.click();
   };
 
   const handleUploadPrescription = () => {
-    // This would handle the prescription upload functionality
-    console.log("Upload prescription clicked");
+    // Create a file input element
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.multiple = true;
+    fileInput.accept = "image/*,.pdf";
+    
+    // Handle file selection
+    fileInput.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files) {
+        const newFiles = Array.from(target.files);
+        setUploadedFiles(prev => [...prev, ...newFiles]);
+        
+        toast({
+          title: "Files Uploaded Successfully",
+          description: `${newFiles.length} file(s) uploaded`,
+        });
+      }
+    };
+    
+    // Trigger click on the file input
+    fileInput.click();
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -78,10 +126,33 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = () => {
           <h2 className="text-center text-xl font-bold mb-3">EARN BUDDY COINS!</h2>
           <p className="text-center mb-4">Upload Invoice & Prescription</p>
           
+          {uploadedFiles.length > 0 && (
+            <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+              <h3 className="font-medium mb-3">Uploaded Files ({uploadedFiles.length})</h3>
+              <div className="space-y-3">
+                {uploadedFiles.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                    <div className="flex items-center gap-2">
+                      <FileImage size={20} className="text-blue-600" />
+                      <span className="text-sm truncate max-w-[200px]">{file.name}</span>
+                    </div>
+                    <button 
+                      onClick={() => removeFile(index)}
+                      className="text-gray-500 hover:text-red-500"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
           <Button
-            className="w-full bg-blue-600 hover:bg-blue-700 py-6 mb-4"
+            className="w-full bg-blue-600 hover:bg-blue-700 py-6 mb-4 flex items-center justify-center gap-2"
             onClick={handleUploadInvoice}
           >
+            <Upload size={20} />
             Upload Invoice
           </Button>
           
