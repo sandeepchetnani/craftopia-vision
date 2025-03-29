@@ -14,7 +14,7 @@ const LabPackageList: React.FC<LabPackageListProps> = ({ categories }) => {
   );
 
   return (
-    <div className="mt-4">
+    <div className="mt-2">
       <Tabs defaultValue={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
         <div className="overflow-x-auto pb-2">
           <TabsList className="bg-gray-100 p-1 w-max min-w-full">
@@ -22,7 +22,7 @@ const LabPackageList: React.FC<LabPackageListProps> = ({ categories }) => {
               <TabsTrigger 
                 key={category.categoryId} 
                 value={category.categoryId.toString()}
-                className="px-4 py-2 text-sm whitespace-nowrap"
+                className="px-3 py-1 text-xs whitespace-nowrap"
               >
                 {category.categoryName}
               </TabsTrigger>
@@ -31,8 +31,8 @@ const LabPackageList: React.FC<LabPackageListProps> = ({ categories }) => {
         </div>
 
         {categories.map((category) => (
-          <TabsContent key={category.categoryId} value={category.categoryId.toString()} className="mt-4">
-            <div className="space-y-4">
+          <TabsContent key={category.categoryId} value={category.categoryId.toString()} className="mt-2">
+            <div className="space-y-3">
               {category.packages.map((pkg) => (
                 <LabPackageCard key={pkg.packageId} package={pkg} />
               ))}
