@@ -103,11 +103,7 @@ const ServiceLocationsPage: React.FC<ServiceLocationsPageProps> = ({
             
             <div className="space-y-4">
               {locations.map(location => (
-                <LocationCard 
-                  key={location.id} 
-                  location={location} 
-                  locationType={locationType}
-                />
+                <LocationCard key={location.id} location={location} />
               ))}
             </div>
           </div>

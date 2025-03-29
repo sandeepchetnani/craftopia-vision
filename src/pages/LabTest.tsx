@@ -1,7 +1,6 @@
 
 import React from 'react';
 import ServiceLocationsPage from '../components/ServiceLocationsPage';
-import { ShieldCheck } from 'lucide-react';
 
 const LabTest = () => {
   const labPromo = {
